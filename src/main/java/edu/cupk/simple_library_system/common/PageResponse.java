@@ -1,12 +1,24 @@
 package edu.cupk.simple_library_system.common;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class PageResponse<T> {
     private int code;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String message;
-    private long count;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Long count;
+
     private List<T> data;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("data")
+    private String singleData;
 
     public PageResponse() {
     }
@@ -18,8 +30,29 @@ public class PageResponse<T> {
         this.data = data;
     }
 
+    private PageResponse(int code, String message, long count, String singleData) {
+        this.code = code;
+        this.message = message;
+        this.count = count;
+        this.singleData = singleData;
+    }
+
     public static <T> PageResponse<T> success(long count, List<T> data) {
         return new PageResponse<>(0, "success", count, data);
+    }
+
+    public static PageResponse<String> success(long count, String singleData) {
+        if (count == 0) {
+            // 文档格式: {"code":0,"data":"/upload/xxx.jpg"}
+            return new PageResponse<>(0, null, 0L, singleData);
+        }
+        // 分页格式: {"code":0,"message":"success","count":N,"data":[...]}
+        return new PageResponse<>(0, "success", count, singleData);
+    }
+
+    public static PageResponse<String> fail(String message) {
+        // 错误格式: {"code":1,"message":"xxx"}
+        return new PageResponse<>(1, message, null, (String) null);
     }
 
     public int getCode() {
@@ -52,5 +85,13 @@ public class PageResponse<T> {
 
     public void setData(List<T> data) {
         this.data = data;
+    }
+
+    public String getSingleData() {
+        return singleData;
+    }
+
+    public void setSingleData(String singleData) {
+        this.singleData = singleData;
     }
 }
