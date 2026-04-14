@@ -56,7 +56,14 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public Integer register(@RequestParam String username, @RequestParam String password) {
+    public Integer register(@RequestBody Map<String, String> request) {
+        String username = request.get("username");
+        String password = request.get("password");
+        
+        if (username == null || password == null) {
+            return 0;
+        }
+        
         if (userRepository.existsByUserName(username)) {
             return 0;
         }
